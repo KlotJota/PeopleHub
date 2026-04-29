@@ -1,0 +1,15 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: peoplehub_db
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=PeopleHub@2026
+    networks:
+      - peoplehub-network
+
+networks:
+  peoplehub-network:
+    driver: bridge
