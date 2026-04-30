@@ -9,6 +9,7 @@ public class Person
 
     [Required(ErrorMessage = "Name is required")]
     [StringLength(100, MinimumLength = 3)]
+    /// <example>Jonathan Garcia</example>
     public string Name { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "CPF is required")]

@@ -1,24 +1,50 @@
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
+using PeopleHub.Web.Repositories;
+using PeopleHub.Web.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "../.env"));
+
 DotNetEnv.Env.Load();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")?
-    .Replace("${DB_SERVER}", Environment.GetEnvironmentVariable("DB_SERVER"))
-    .Replace("${DB_NAME}", Environment.GetEnvironmentVariable("DB_NAME"))
-    .Replace("${DB_USER}", Environment.GetEnvironmentVariable("DB_USER"))
-    .Replace("${DB_PASSWORD}", Environment.GetEnvironmentVariable("DB_PASSWORD"));
+var rawConnectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+var connectionString = rawConnectionString?
+    .Replace("${DB_SERVER}", Environment.GetEnvironmentVariable("DB_SERVER") ?? "localhost,1433")
+    .Replace("${DB_NAME}", Environment.GetEnvironmentVariable("DB_NAME") ?? "PeopleHubDB")
+    .Replace("${DB_USER}", Environment.GetEnvironmentVariable("DB_USER") ?? "sa")
+    .Replace("${DB_PASSWORD}", Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "PeopleHub@2026");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IPersonRepository, PersonRepository>();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "PeopleHub API V1");
+    });
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<AppDbContext>();
+    DbInitializer.Seed(context);
+}
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
