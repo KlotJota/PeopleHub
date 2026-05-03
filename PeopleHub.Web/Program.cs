@@ -1,9 +1,16 @@
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
+using PeopleHub.Web.Services;
 using PeopleHub.Web.Repositories;
 using PeopleHub.Web.Data;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    // Isso garante que ele pegue a raiz do projeto mesmo rodando pelo VS
+    ContentRootPath = AppContext.BaseDirectory.Split(new String[] { @"\bin\" }, StringSplitOptions.None)[0],
+    WebRootPath = "wwwroot"
+});
 
 DotNetEnv.Env.Load(Path.Combine(Directory.GetCurrentDirectory(), "../.env"));
 
@@ -23,6 +30,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IPersonRepository, PersonRepository>();
+builder.Services.AddScoped<IPersonService, PersonService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -52,17 +60,18 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapStaticAssets();
+// Map attribute-routed API controllers (e.g. controllers decorated with [ApiController] and [Route("api/[controller]")])
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 
 app.Run();

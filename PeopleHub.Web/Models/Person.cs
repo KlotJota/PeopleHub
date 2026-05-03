@@ -16,10 +16,11 @@ public class Person
     [RegularExpression(@"^\d{11}$", ErrorMessage = "CPF must contain 11 digits")]
     public string Cpf { get; set; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "BirthDate is required")]
     [DataType(DataType.Date)]
     public DateTime BirthDate { get; set; }
 
+    [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Invalid e-mail")]
     public string? Email { get; set; }
 

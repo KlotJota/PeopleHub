@@ -1,0 +1,218 @@
+@{
+    ViewData["Title"] = "Gerenciamento de pessoas";
+}
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="flex h-screen bg-gray-50">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 hidden md:block">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold text-blue-600">PeopleHub</h1>
+        </div>
+        <nav class="mt-4">
+            <a href="#" class="flex items-center px-6 py-3 text-blue-600 bg-blue-50 border-r-4 border-blue-600">
+                <span class="mx-3 font-medium">Pessoas</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 overflow-y-auto">
+        
+        <!-- CABEÇALHO RESTAURADO -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Gerenciamento de pessoas</h2>
+                <p class="text-gray-500">Gerencie os membros de sua equipe e suas informações</p>
+            </div>
+            <button data-bind="click: openAdd" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-all shadow-sm">
+                <span class="mr-2 text-lg font-bold">+</span> Adicionar pessoa
+            </button>
+        </div>
+
+        <!-- Tabela -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <!-- Header da Tabela com Busca -->
+            <div class="p-4 border-b border-gray-100">
+                <div class="relative w-full max-w-xl">
+                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                        </svg>
+                    </span>
+                    <input type="text" 
+                           data-bind="value: searchQuery, valueUpdate: 'input'"
+                           class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-md bg-gray-50 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm" 
+                           placeholder="Procurar por nome, email ou CPF...">
+                </div>
+            </div>
+
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50 text-gray-500 uppercase text-xs font-semibold">
+                    <tr>
+                        <th class="px-6 py-4 text-left">Nome</th>
+                        <th class="px-6 py-4 text-left">CPF</th>
+                        <th class="px-6 py-4 text-left">Email</th>
+                        <th class="px-6 py-4 text-left">Data de nascimento</th>
+                        <th class="px-6 py-4 text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-sm text-gray-700">
+                    <!-- ko foreach: { data: people, as: 'person' } -->
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 font-medium text-gray-900" data-bind="text: person.name"></td>
+                        <td class="px-6 py-4" data-bind="text: person.cpf"></td>
+                        <td class="px-6 py-4" data-bind="text: person.email"></td>
+                        <td class="px-6 py-4" data-bind="text: person.birthDate"></td>
+                        <td class="px-6 py-4 text-center space-x-3">
+                            <!-- Botão Editar -->
+                            <button class="text-gray-400 hover:text-blue-600 transition-colors" 
+                                    data-bind="click: $parent.openEdit" 
+                                    title="Editar">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                                </svg>
+                            </button>
+
+                            <!-- Botão Excluir -->
+                            <button class="text-gray-400 hover:text-red-600 transition-colors" 
+                                    data-bind="click: $parent.deletePerson" 
+                                    title="Excluir">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 inline">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                    <!-- /ko -->
+
+                    <!-- Caso a tabela esteja vazia -->
+                    <!-- ko if: people().length === 0 -->
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center justify-center text-gray-400">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mb-2 opacity-20">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-3.833-6.247 4.146 4.146 0 0 0-2.477.822.75.75 0 0 1-1.04-.132c-.143-.198-.445-.25-.652-.124A6.781 6.781 0 0 1 10 14.125c-.328 0-.649.023-.963.068a.75.75 0 0 1-.84-.668c-.02-.19-.153-.35-.353-.35a6.791 6.791 0 0 0-4.636 1.83 4.125 4.125 0 0 0 3.125 7.375 9.375 9.375 0 0 0 6.003-2.139.75.75 0 0 1 1.002.043Z" />
+                                </svg>
+                                <span class="text-lg font-medium">Nenhum registro encontrado</span>
+                                <p class="text-sm">Tente ajustar sua busca ou adicione uma nova pessoa.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- /ko -->
+                </tbody>
+            </table>
+
+            <!-- Footer da Tabela: Paginação e Info -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                <!-- Informação de contagem -->
+                <div class="text-sm text-gray-600">
+                    Mostrando <span class="font-semibold text-gray-900" data-bind="text: people().length"></span> 
+                    de <span class="font-semibold text-gray-900" data-bind="text: totalCount"></span> registros
+                </div>
+
+                <!-- Botões de Navegação -->
+                <div class="flex items-center space-x-2">
+                    <button data-bind="click: prevPage, disable: currentPage() === 1" 
+                            class="px-3 py-1 border rounded bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm">
+                        Anterior
+                    </button>
+                    
+                    <div class="text-sm font-medium text-gray-700">
+                        Página <span data-bind="text: currentPage"></span>
+                    </div>
+
+                    <button data-bind="click: nextPage, disable: (currentPage() * pageSize) >= totalCount()" 
+                            class="px-3 py-1 border rounded bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm">
+                        Próximo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Pessoa -->
+    <div id="personModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center pb-3 border-b border-gray-100">
+                <h3 class="text-lg font-bold text-gray-900" data-bind="text: isEditing() ? 'Editar Pessoa' : 'Adicionar Pessoa'"></h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+            </div>
+        
+            <form data-bind="submit: savePerson" class="space-y-4 mt-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nome Completo</label>
+                    <input type="text" data-bind="value: selectedPerson.name, 
+                           css: {'border-red-500 focus:ring-red-500': showErrors() && !selectedPerson.name()}" 
+                           class="mt-1 block w-full border rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <p class="text-red-500 text-xs mt-1" data-bind="visible: showErrors() && !selectedPerson.name()">O nome é obrigatório.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">CPF</label>
+                    <input type="text" id="cpfInput" data-bind="value: selectedPerson.cpf, valueUpdate: 'input',
+                           css: {'border-red-500 focus:ring-red-500': showErrors() && !selectedPerson.cpf()}" 
+                           placeholder="000.000.000-00" class="mt-1 block w-full border rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <p class="text-red-500 text-xs mt-1" data-bind="visible: showErrors() && !selectedPerson.cpf()">O CPF é obrigatório.</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                    <input type="text" data-bind="value: selectedPerson.email, 
+                           css: {'border-red-500 focus:ring-red-500': showErrors() && !selectedPerson.email()}" 
+                           class="mt-1 block w-full border rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <p class="text-red-500 text-xs mt-1" data-bind="visible: showErrors() && !selectedPerson.email()">O e-mail é obrigatório.</p>
+                    <p class="text-red-500 text-xs mt-1" 
+                       data-bind="visible: showErrors() && selectedPerson.email() && !isEmailValid()">
+                        Por favor, insira um e-mail válido.
+                    </p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Data de Nascimento</label>
+                    <input type="date" data-bind="value: selectedPerson.birthDate, 
+                           css: {'border-red-500 focus:ring-red-500': showErrors() && !selectedPerson.birthDate()}" 
+                           class="mt-1 block w-full border rounded-md p-2 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <p class="text-red-500 text-xs mt-1" data-bind="visible: showErrors() && !selectedPerson.birthDate()">A data de nascimento é obrigatória.</p>
+                </div>
+            
+                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-white border rounded-md text-gray-700 hover:bg-gray-50">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-40 mx-auto p-5 border w-full max-w-sm shadow-lg rounded-md bg-white">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <span class="text-red-600 text-xl">⚠️</span>
+                </div>
+                <h3 class="text-lg leading-6 font-bold text-gray-900">Confirmar exclusão</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500">
+                        Deseja realmente excluir <span class="font-bold text-gray-700" data-bind="text: personToDelete() ? personToDelete().name : ''"></span>? Esta ação não pode ser desfeita.
+                    </p>
+                </div>
+                <div class="flex justify-center gap-4 mt-4">
+                    <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 font-medium transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="button" data-bind="click: confirmDelete" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-medium shadow-sm transition-colors">
+                        Sim, excluir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container de Toasts -->
+    <div id="toast-container" class="fixed top-5 right-5 z-[100] space-y-2"></div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script src="~/js/person.js" asp-append-version="true"></script>
+}

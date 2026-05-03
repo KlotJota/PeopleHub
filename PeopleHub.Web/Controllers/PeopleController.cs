@@ -1,3 +1,4 @@
+using PeopleHub.Web.Services;
 using PeopleHub.Web.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using PeopleHub.Web.Models;
@@ -9,31 +10,29 @@ namespace PeopleHub.Web.Controllers;
 [Route("api/[controller]")]
 public class PeopleController : Controller
 {
-    private readonly IPersonRepository _repository;
+    private readonly IPersonService _personService;
 
-    public PeopleController(IPersonRepository repository)
+    public PeopleController(IPersonService personService)
     {
-        _repository = repository;
+        _personService = personService;
     }
 
+    [HttpGet("/People")]
     [ApiExplorerSettings(IgnoreApi = true)]
     public IActionResult Index() => View();
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _repository.GetAllAsync());
+    public async Task<IActionResult> Get([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    {
+        var (items, totalCount) = await _personService.GetAllActiveAsync(search, page, pageSize);
+
+        return Ok(new { items, totalCount });
+    }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
-        var person = await _repository.GetByIdAsync(id);
-        if (person == null) return NotFound();
-        return Ok(person);
-    }
-
-    [HttpGet("cpf/{cpf}")]
-    public async Task<IActionResult> GetByCpf(string cpf)
-    {
-        var person = await _repository.GetByCpfAsync(cpf);
+        var person = await _personService.GetPersonByIdAsync(id);
         if (person == null) return NotFound();
         return Ok(person);
     }
@@ -43,20 +42,17 @@ public class PeopleController : Controller
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var existing = await _repository.GetByCpfAsync(dto.Cpf);
-        if (existing != null) return BadRequest("CPF already registered.");
+        var result = await _personService.CreatePersonAsync(dto);
 
-        var person = new Person
+        if (!result.Success)
         {
-            Name = dto.Name,
-            Cpf = dto.Cpf,
-            BirthDate = dto.BirthDate,
-            Email = dto.Email,
-            Archived = false
-        };
+            if (result.Message.Contains("já está cadastrado"))
+                return Conflict(result.Message);
 
-        await _repository.AddAsync(person);
-        return CreatedAtAction(nameof(GetById), new { id = person.Id }, person);
+            return BadRequest(result.Message);
+        }
+
+        return CreatedAtAction(nameof(GetById), new { id = result.Person!.Id }, result.Person);
     }
 
     [HttpPut("{id:int}")]
@@ -65,29 +61,28 @@ public class PeopleController : Controller
         if (id != dto.Id) return BadRequest("ID mismatch");
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        // Busca a pessoa original (sem rastreamento para evitar conflito)
-        var person = await _repository.GetByIdAsync(id);
-        if (person == null) return NotFound();
+        var result = await _personService.UpdatePersonAsync(id, dto);
 
-        // Atualiza apenas os campos permitidos do DTO para a Entidade
-        person.Name = dto.Name;
-        person.Cpf = dto.Cpf;
-        person.BirthDate = dto.BirthDate;
-        person.Email = dto.Email;
-        // person.Archived não é tocado aqui, preservando o estado original
+        if (!result.Success)
+        {
+            if (result.Message.Contains("não encontrada"))
+                return NotFound(result.Message);
 
-        await _repository.UpdateAsync(person);
+            if (result.Message.Contains("já está cadastrado"))
+                return Conflict(result.Message);
+
+            return BadRequest(result.Message);
+        }
+
         return NoContent();
     }
 
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var person = await _repository.GetByIdAsync(id);
-        if (person == null) return NotFound();
+        var success = await _personService.DeletePersonAsync(id);
 
-        person.Archived = true;
-        await _repository.UpdateAsync(person);
+        if (!success) return NotFound();
 
         return NoContent();
     }

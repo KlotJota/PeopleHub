@@ -14,11 +14,28 @@ public class PersonRepository : IPersonRepository
     }
 
     // AsNoTracking evita conflitos de cache
-    public async Task<IEnumerable<Person>> GetAllAsync() =>
-        await _context.People
+    public async Task<(IEnumerable<Person> Items, int TotalCount)> GetAllAsync(string? search = null, int page = 1, int pageSize = 10)
+    {
+        var query = _context.People
             .AsNoTracking()
-            .Where(p => p.Archived == false)
+            .Where(p => !p.Archived);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            query = query.Where(p => p.Name.Contains(search) ||
+                                     p.Cpf.Contains(search) ||
+                                     (p.Email != null && p.Email.Contains(search)));
+        }
+
+        var totalCount = await query.CountAsync(); // Precisamos do total para o front saber quantas páginas existem
+        var items = await query
+            .OrderBy(p => p.Name) // Importante: Skip/Take exige ordenação
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync();
+
+        return (items, totalCount);
+    }
 
     public async Task<Person?> GetByIdAsync(int id) =>
         await _context.People
@@ -29,6 +46,11 @@ public class PersonRepository : IPersonRepository
         await _context.People
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Cpf == cpf);
+
+    public async Task<Person?> GetByEmailAsync(string email) =>
+        await _context.People
+            .AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Email == email);
 
     public async Task AddAsync(Person person)
     {

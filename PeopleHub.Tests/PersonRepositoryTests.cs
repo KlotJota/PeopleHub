@@ -25,8 +25,8 @@ public class PersonRepositoryTests
         var context = GetDbContext();
         context.People.AddRange(new List<Person>
         {
-            new Person { Id = 1, Name = "Ativo", Cpf = "1", Archived = false },
-            new Person { Id = 2, Name = "Arquivado", Cpf = "2", Archived = true }
+            new Person { Id = 1, Name = "Ativo", Cpf = "1", Email = "ativo@teste.com", Archived = false },
+            new Person { Id = 2, Name = "Arquivado", Cpf = "2", Email = "arquivado@teste.com", Archived = true }
         });
         await context.SaveChangesAsync();
 
@@ -34,17 +34,20 @@ public class PersonRepositoryTests
 
         var repository = new PersonRepository(context);
 
-        var result = await repository.GetAllAsync();
+        // Ajuste aqui: Desconstruímos a tupla em (items, totalCount)
+        var (items, totalCount) = await repository.GetAllAsync();
 
-        Assert.Single(result);
-        Assert.All(result, p => Assert.False(p.Archived));
+        // Agora testamos a coleção 'items' que está dentro da tupla
+        Assert.Single(items);
+        Assert.Equal(1, totalCount);
+        Assert.All(items, p => Assert.False(p.Archived));
     }
 
     [Fact]
     public async Task DeleteAsync_ShouldSetArchivedToTrue()
     {
         var context = GetDbContext();
-        var person = new Person { Id = 1, Name = "Jonathan", Cpf = "123", Archived = false };
+        var person = new Person { Id = 1, Name = "Jonathan", Cpf = "123", Email = "jonathan@teste.com", Archived = false };
         context.People.Add(person);
         await context.SaveChangesAsync();
 
