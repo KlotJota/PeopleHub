@@ -2,6 +2,8 @@
 
 Aplicação simples para cadastro e gerenciamento de pessoas, desenvolvida como etapa prática de processo seletivo. O foco do projeto é demonstrar organização de código, separação de responsabilidades, validações de negócio e uso da stack solicitada: ASP.NET MVC, Entity Framework, SQL Server e Knockout.js.
 
+<img width="1897" height="949" alt="image" src="https://github.com/user-attachments/assets/9c809952-a79e-4069-bbd9-a66146f2cf05" />
+
 ## Funcionalidades
 
 - Cadastro, edição, listagem e exclusão de pessoas.
