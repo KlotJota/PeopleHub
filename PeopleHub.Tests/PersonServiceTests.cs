@@ -1,8 +1,9 @@
 using Moq;
-using PeopleHub.Web.DTOs;
-using PeopleHub.Web.Models;
-using PeopleHub.Web.Repositories;
-using PeopleHub.Web.Services;
+using PeopleHub.Application.People.DTOs;
+using PeopleHub.Application.People.Repositories;
+using PeopleHub.Application.People.Results;
+using PeopleHub.Application.People.Services;
+using PeopleHub.Domain.People;
 using Xunit;
 
 namespace PeopleHub.Tests;

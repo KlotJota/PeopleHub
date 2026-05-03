@@ -1,6 +1,6 @@
-using PeopleHub.Web.Models;
+using PeopleHub.Domain.People;
 
-namespace PeopleHub.Web.Data;
+namespace PeopleHub.Infrastructure.Data;
 
 public static class DbInitializer
 {

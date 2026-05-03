@@ -1,7 +1,8 @@
-using PeopleHub.Web.DTOs;
-using PeopleHub.Web.Models;
+using PeopleHub.Application.People.DTOs;
+using PeopleHub.Application.People.Results;
+using PeopleHub.Domain.People;
 
-namespace PeopleHub.Web.Services;
+namespace PeopleHub.Application.People.Services;
 
 public interface IPersonService
 {

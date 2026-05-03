@@ -1,5 +1,6 @@
-namespace PeopleHub.Web.DTOs;
 using System.ComponentModel.DataAnnotations;
+
+namespace PeopleHub.Application.People.DTOs;
 
 public class PersonCreateDto
 {

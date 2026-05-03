@@ -1,9 +1,10 @@
-namespace PeopleHub.Web.DTOs;
 using System.ComponentModel.DataAnnotations;
 
-public class PersonUpdateDto
+namespace PeopleHub.Domain.People;
+
+public class Person
 {
-    [Required]
+    [Key]
     public int Id { get; set; }
 
     [Required(ErrorMessage = "Name is required")]
@@ -22,4 +23,6 @@ public class PersonUpdateDto
     [EmailAddress(ErrorMessage = "Invalid e-mail")]
     [StringLength(254)]
     public string Email { get; set; } = string.Empty;
+
+    public bool Archived { get; set; } = false;
 }

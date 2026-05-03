@@ -1,6 +1,6 @@
-using PeopleHub.Web.Models;
+using PeopleHub.Domain.People;
 
-namespace PeopleHub.Web.Services;
+namespace PeopleHub.Application.People.Results;
 
 public enum PersonOperationStatus
 {

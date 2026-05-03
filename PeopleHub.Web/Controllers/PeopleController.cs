@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using PeopleHub.Web.DTOs;
-using PeopleHub.Web.Services;
+using PeopleHub.Application.People.DTOs;
+using PeopleHub.Application.People.Results;
+using PeopleHub.Application.People.Services;
 
 namespace PeopleHub.Web.Controllers;
 

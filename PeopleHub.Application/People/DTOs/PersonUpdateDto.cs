@@ -1,15 +1,14 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace PeopleHub.Web.Models;
+namespace PeopleHub.Application.People.DTOs;
 
-public class Person
+public class PersonUpdateDto
 {
-    [Key]
+    [Required]
     public int Id { get; set; }
 
     [Required(ErrorMessage = "Name is required")]
     [StringLength(100, MinimumLength = 3)]
-    /// <example>Jonathan Garcia</example>
     public string Name { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "CPF is required")]
@@ -24,6 +23,4 @@ public class Person
     [EmailAddress(ErrorMessage = "Invalid e-mail")]
     [StringLength(254)]
     public string Email { get; set; } = string.Empty;
-
-    public bool Archived { get; set; } = false;
 }

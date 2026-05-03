@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace PeopleHub.Web.Migrations
+namespace PeopleHub.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class CreatePeopleTable : Migration

@@ -3,7 +3,6 @@ $(document).ready(function () {
         var self = this;
 
         self.people = ko.observableArray([]);
-        // debounce
         self.searchQuery = ko.observable('').extend({ rateLimit: 600 });
 
         self.isEditing = ko.observable(false);
@@ -20,7 +19,7 @@ $(document).ready(function () {
             cpf: ko.observable(''),
             email: ko.observable(''),
             birthDate: ko.observable('')
-        }
+        };
 
         self.isEmailValid = ko.computed(function () {
             var email = self.selectedPerson.email() || "";
@@ -29,10 +28,8 @@ $(document).ready(function () {
             return re.test(email);
         });
 
-        // 2. Carga de Dados via Backend
-        // Agora o filtro é enviado como QueryString para o C#
         self.loadPeople = function () {
-            var query = self.searchQuery() || ""; // Corrigido para searchQuery
+            var query = self.searchQuery() || "";
             var url = "/api/people?search=" + encodeURIComponent(query) +
                 "&page=" + self.currentPage() +
                 "&pageSize=" + self.pageSize;
@@ -45,7 +42,6 @@ $(document).ready(function () {
             });
         };
 
-        // Funções para os botões
         self.nextPage = function () {
             if ((self.currentPage() * self.pageSize) < self.totalCount()) {
                 self.currentPage(self.currentPage() + 1);
@@ -60,10 +56,7 @@ $(document).ready(function () {
             }
         };
 
-        // 3. Observador de busca
-        // Sempre que o searchQuery mudar (respeitando o delay), ele recarrega a lista
         self.searchQuery.subscribe(function () {
-            console.log("Buscando no banco por:", self.searchQuery());
             self.currentPage(1);
             self.loadPeople();
         });
@@ -78,7 +71,6 @@ $(document).ready(function () {
         self.openEdit = function (person) {
             self.showErrors(false);
             self.isEditing(true);
-            // Mapeia garantindo compatibilidade com PascalCase ou camelCase do JSON
             self.selectedPerson.id(person.id || person.Id);
             self.selectedPerson.name(person.name || person.Name);
             self.selectedPerson.cpf(person.cpf || person.Cpf);
@@ -88,6 +80,7 @@ $(document).ready(function () {
             if (bDate) {
                 self.selectedPerson.birthDate(bDate.split('T')[0]);
             }
+
             document.getElementById('personModal').classList.remove('hidden');
         };
 
@@ -110,7 +103,6 @@ $(document).ready(function () {
         self.validateForm = function (personData) {
             var cleanCpf = getCleanCpf(personData.cpf);
 
-            // 1. Validação de campos obrigatórios e formato de e-mail
             if (!personData.name || cleanCpf.length !== 11 || !personData.email || !self.isEmailValid() || !personData.birthDate) {
                 if (cleanCpf.length > 0 && cleanCpf.length !== 11) {
                     showToast("O CPF deve conter 11 dígitos.", "error");
@@ -118,7 +110,6 @@ $(document).ready(function () {
                 return false;
             }
 
-            // 2. Validação de idade (pelo menos 18 anos)
             var birth = new Date(personData.birthDate);
             var today = new Date();
             var age = today.getFullYear() - birth.getFullYear();
@@ -144,7 +135,6 @@ $(document).ready(function () {
                 birthDate: self.selectedPerson.birthDate()
             };
 
-            // Agora o savePerson apenas pergunta: "Está válido?"
             if (!self.validateForm(personData)) return;
 
             var isUpdate = self.isEditing();
@@ -192,11 +182,8 @@ $(document).ready(function () {
             });
         };
 
-        // Carga inicial
         self.loadPeople();
     }
-
-    // --- Helpers de Janela e Mascaras ---
 
     window.showToast = function (message, type = "success") {
         const container = document.getElementById('toast-container');
@@ -204,7 +191,6 @@ $(document).ready(function () {
         const isError = type === "error";
         const bgClass = isError ? "bg-red-50 border-red-200 text-red-800" : "bg-green-50 border-green-200 text-green-800";
 
-        // SVG corrigido (sem o "Ref:")
         const iconSvg = isError
             ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />

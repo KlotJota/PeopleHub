@@ -1,10 +1,11 @@
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
+using PeopleHub.Application.People.DTOs;
+using PeopleHub.Application.People.Results;
+using PeopleHub.Application.People.Services;
+using PeopleHub.Domain.People;
 using PeopleHub.Web.Controllers;
-using PeopleHub.Web.DTOs;
-using PeopleHub.Web.Models;
-using PeopleHub.Web.Services;
 using Xunit;
 
 namespace PeopleHub.Tests;

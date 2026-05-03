@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PeopleHub.Web.Data;
-using PeopleHub.Web.Models;
-using PeopleHub.Web.Repositories;
+using Microsoft.EntityFrameworkCore;
+using PeopleHub.Domain.People;
+using PeopleHub.Infrastructure.Data;
+using PeopleHub.Infrastructure.Repositories;
 using Xunit;
 
 namespace PeopleHub.Tests;
@@ -34,10 +34,8 @@ public class PersonRepositoryTests
 
         var repository = new PersonRepository(context);
 
-        // Ajuste aqui: Desconstruímos a tupla em (items, totalCount)
         var (items, totalCount) = await repository.GetAllAsync();
 
-        // Agora testamos a coleção 'items' que está dentro da tupla
         Assert.Single(items);
         Assert.Equal(1, totalCount);
         Assert.All(items, p => Assert.False(p.Archived));
@@ -51,7 +49,6 @@ public class PersonRepositoryTests
         context.People.Add(person);
         await context.SaveChangesAsync();
 
-        // limpa o rastreamento antes de iniciar a ação do teste pra evitar erro de "already being tracked".
         context.ChangeTracker.Clear();
 
         var repository = new PersonRepository(context);

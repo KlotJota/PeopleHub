@@ -26,6 +26,47 @@ Aplicação simples para cadastro e gerenciamento de pessoas, desenvolvida como 
 - xUnit, Moq e FluentAssertions nos testes
 - Docker Compose para banco local
 
+## Arquitetura
+
+A solução foi organizada em camadas inspiradas em Clean Architecture:
+
+```text
+PeopleHub.Domain
+  People/
+    Person.cs
+
+PeopleHub.Application
+  People/
+    DTOs/
+    Repositories/
+    Results/
+    Services/
+
+PeopleHub.Infrastructure
+  Data/
+    AppDbContext.cs
+    DbInitializer.cs
+  Migrations/
+  Repositories/
+
+PeopleHub.Web
+  Controllers/
+  Views/
+  wwwroot/
+
+PeopleHub.Tests
+```
+
+### Responsabilidades
+
+`PeopleHub.Domain` contém a entidade `Person` e representa o núcleo de negócio. Essa camada não depende de Entity Framework, MVC ou detalhes externos.
+
+`PeopleHub.Application` contém contratos, DTOs, serviços de aplicação e resultados tipados. É onde ficam as regras do caso de uso, como idade mínima, unicidade de CPF/e-mail e soft delete.
+
+`PeopleHub.Infrastructure` contém detalhes técnicos: `AppDbContext`, migrations, seed e implementação concreta do repositório com Entity Framework.
+
+`PeopleHub.Web` contém apenas a entrada da aplicação: controllers, views MVC, assets estáticos e configuração HTTP. O controller traduz requisições e respostas HTTP, mas não concentra regra de negócio.
+
 ## Como Executar
 
 Suba o SQL Server:
@@ -34,13 +75,15 @@ Suba o SQL Server:
 docker compose up -d
 ```
 
-Configure as variáveis no arquivo `.env` com base em `.env.example`.
+Configure as variáveis no arquivo `.env` com base em `.env.example`. O arquivo `.env.example` deve ser versionado como referência de configuração; o `.env` real fica fora do Git para evitar exposição de credenciais locais.
 
 Rode a aplicação:
 
 ```bash
 dotnet run --project PeopleHub.Web
 ```
+
+Ao iniciar, a aplicação executa automaticamente as migrations pendentes e realiza o seed inicial de dados, desde que o SQL Server esteja disponível.
 
 A tela principal fica em:
 
@@ -66,20 +109,22 @@ Atualmente os testes cobrem:
 
 ## Decisões Técnicas
 
-A aplicação foi mantida propositalmente simples, mas com responsabilidades separadas. O controller recebe as requisições HTTP e traduz o resultado da aplicação para status codes. O service concentra as regras de negócio, como idade mínima e unicidade. O repository encapsula as consultas e comandos com Entity Framework.
-
-Os endpoints usam DTOs para entrada de dados, evitando acoplamento direto entre o contrato externo da API e a entidade persistida. O serviço retorna um `PersonOperationResult` tipado, com status explícito para sucesso, validação, conflito e não encontrado. Isso evita decisões baseadas em texto de mensagem e deixa o fluxo mais previsível.
+O projeto usa DTOs para entrada de dados, evitando acoplamento direto entre contrato externo e entidade persistida. O serviço retorna `PersonOperationResult`, um resultado tipado com status explícito para sucesso, validação, conflito e não encontrado. Isso evita decisões baseadas em texto de mensagem e deixa o fluxo mais previsível.
 
 As restrições de unicidade de CPF e e-mail foram aplicadas também no banco via índices únicos. A validação em memória melhora a experiência do usuário, mas a constraint no banco protege a integridade dos dados.
 
 O soft delete foi escolhido para preservar histórico e evitar remoção física imediata. A listagem padrão ignora registros arquivados.
 
-## O Que Melhoraria Com Mais Tempo
+As migrations ficam na camada de infraestrutura porque são detalhes de persistência. A aplicação Web apenas registra o `AppDbContext`, executa migrations e inicia o seed.
 
-- Separar a solução em camadas/projetos dedicados, como `Domain`, `Application`, `Infrastructure` e `Web`.
-- Adicionar validação real de CPF.
+Os arquivos iniciais do template MVC, como `HomeController`, `Views/Home` e tela de erro padrão, foram removidos porque não faziam parte do fluxo do PeopleHub. A rota padrão aponta diretamente para `PeopleController.Index`.
+
+## O que melhoraria com mais tempo
+
+- Adicionar autenticação/autorização caso o sistema deixasse de ser apenas uma prova prática.
+- Tratar melhor erros de API, retornando códigos/mensagens padronizadas em inglês no backend e traduzindo as mensagens no front-end.
+- Adicionar rate limit como medida de segurança para reduzir abuso dos endpoints.
 - Criar testes de integração com SQL Server em container.
 - Adicionar tratamento global de exceções com respostas padronizadas.
 - Melhorar observabilidade com logs estruturados.
-- Adicionar autenticação/autorização caso o sistema deixasse de ser apenas uma prova prática.
-- Automatizar migrations em um fluxo controlado para ambientes reais.
+- Automatizar um pipeline de CI com build, testes e análise estática.

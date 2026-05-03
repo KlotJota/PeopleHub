@@ -22,6 +22,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PeopleHub.Application\PeopleHub.Application.csproj" />
+    <ProjectReference Include="..\PeopleHub.Domain\PeopleHub.Domain.csproj" />
+    <ProjectReference Include="..\PeopleHub.Infrastructure\PeopleHub.Infrastructure.csproj" />
     <ProjectReference Include="..\PeopleHub.Web\PeopleHub.Web.csproj" />
   </ItemGroup>
 

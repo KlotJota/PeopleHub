@@ -1,8 +1,9 @@
 using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
-using PeopleHub.Web.Services;
-using PeopleHub.Web.Repositories;
-using PeopleHub.Web.Data;
+using PeopleHub.Application.People.Repositories;
+using PeopleHub.Application.People.Services;
+using PeopleHub.Infrastructure.Data;
+using PeopleHub.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -25,7 +26,8 @@ var connectionString = rawConnectionString?
     .Replace("${DB_PASSWORD}", Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "PeopleHub@2026");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, sql =>
+        sql.MigrationsAssembly(typeof(AppDbContext).Assembly.GetName().Name)));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -56,8 +58,14 @@ using (var scope = app.Services.CreateScope())
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler(errorApp =>
+    {
+        errorApp.Run(async context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            await context.Response.WriteAsync("Ocorreu um erro inesperado.");
+        });
+    });
     app.UseHsts();
 }
 
@@ -72,7 +80,7 @@ app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=People}/{action=Index}/{id?}");
 
 
 app.Run();
