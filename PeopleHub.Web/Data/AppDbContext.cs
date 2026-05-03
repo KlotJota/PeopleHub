@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using PeopleHub.Web.Models;
 
+namespace PeopleHub.Web.Data;
+
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
@@ -13,6 +15,10 @@ public class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Person>()
             .HasIndex(p => p.Cpf)
+            .IsUnique();
+
+        modelBuilder.Entity<Person>()
+            .HasIndex(p => p.Email)
             .IsUnique();
     }
 }

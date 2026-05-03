@@ -1,5 +1,5 @@
-using PeopleHub.Web.Models;      // Para achar a classe Person
-using PeopleHub.Web.DTOs;        // Para achar PersonCreateDto e PersonUpdateDto
+using PeopleHub.Web.DTOs;
+using PeopleHub.Web.Models;
 using PeopleHub.Web.Repositories;
 
 namespace PeopleHub.Web.Services;
@@ -22,10 +22,10 @@ public class PersonService : IPersonService
 
     public async Task<Person?> GetPersonByCpfAsync(string cpf) => await _repository.GetByCpfAsync(cpf);
 
-    public async Task<(bool Success, string Message, Person? Person)> CreatePersonAsync(PersonCreateDto dto)
+    public async Task<PersonOperationResult> CreatePersonAsync(PersonCreateDto dto)
     {
         var validation = await ValidatePersonDataAsync(null, dto.Email, dto.Cpf, dto.BirthDate);
-        if (!validation.Success) return (false, validation.Message, null);
+        if (!validation.Success) return validation;
 
         var person = new Person
         {
@@ -37,16 +37,16 @@ public class PersonService : IPersonService
         };
 
         await _repository.AddAsync(person);
-        return (true, "Success", person);
+        return PersonOperationResult.Created(person);
     }
 
-    public async Task<(bool Success, string Message)> UpdatePersonAsync(int id, PersonUpdateDto dto)
+    public async Task<PersonOperationResult> UpdatePersonAsync(int id, PersonUpdateDto dto)
     {
         var person = await _repository.GetByIdAsync(id);
-        if (person == null) return (false, "Pessoa não encontrada.");
+        if (person == null) return PersonOperationResult.NotFound("Pessoa não encontrada.");
 
         var validation = await ValidatePersonDataAsync(id, dto.Email, dto.Cpf, dto.BirthDate);
-        if (!validation.Success) return (false, validation.Message);
+        if (!validation.Success) return validation;
 
         person.Name = dto.Name;
         person.Cpf = dto.Cpf;
@@ -54,7 +54,7 @@ public class PersonService : IPersonService
         person.Email = dto.Email;
 
         await _repository.UpdateAsync(person);
-        return (true, "Success");
+        return PersonOperationResult.Updated();
     }
 
     public async Task<bool> DeletePersonAsync(int id)
@@ -67,22 +67,22 @@ public class PersonService : IPersonService
         return true;
     }
 
-    private async Task<(bool Success, string Message)> ValidatePersonDataAsync(int? id, string? email, string cpf, DateTime birthDate)
+    private async Task<PersonOperationResult> ValidatePersonDataAsync(int? id, string email, string cpf, DateTime birthDate)
     {
-        if (birthDate > DateTime.Now.AddYears(-18))
-            return (false, "A pessoa deve ter no mínimo 18 anos.");
+        if (birthDate.Date > DateTime.Today.AddYears(-18))
+            return PersonOperationResult.ValidationError("A pessoa deve ter no mínimo 18 anos.");
 
-        if (!string.IsNullOrEmpty(email))
+        if (!string.IsNullOrWhiteSpace(email))
         {
             var personWithEmail = await _repository.GetByEmailAsync(email);
             if (personWithEmail != null && personWithEmail.Id != id)
-                return (false, "Este e-mail já está cadastrado.");
+                return PersonOperationResult.Conflict("Este e-mail já está cadastrado.");
         }
 
         var personWithCpf = await _repository.GetByCpfAsync(cpf);
         if (personWithCpf != null && personWithCpf.Id != id)
-            return (false, "Este CPF já está cadastrado.");
+            return PersonOperationResult.Conflict("Este CPF já está cadastrado.");
 
-        return (true, "Success");
+        return PersonOperationResult.Updated();
     }
 }

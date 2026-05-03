@@ -17,5 +17,6 @@ public class PersonCreateDto
 
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Invalid e-mail")]
-    public string? Email { get; set; }
+    [StringLength(254)]
+    public string Email { get; set; } = string.Empty;
 }

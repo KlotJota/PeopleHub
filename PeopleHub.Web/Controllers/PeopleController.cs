@@ -1,8 +1,6 @@
-using PeopleHub.Web.Services;
-using PeopleHub.Web.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using PeopleHub.Web.Models;
-using PeopleHub.Web.Repositories;
+using PeopleHub.Web.DTOs;
+using PeopleHub.Web.Services;
 
 namespace PeopleHub.Web.Controllers;
 
@@ -34,6 +32,7 @@ public class PeopleController : Controller
     {
         var person = await _personService.GetPersonByIdAsync(id);
         if (person == null) return NotFound();
+
         return Ok(person);
     }
 
@@ -43,14 +42,7 @@ public class PeopleController : Controller
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var result = await _personService.CreatePersonAsync(dto);
-
-        if (!result.Success)
-        {
-            if (result.Message.Contains("já está cadastrado"))
-                return Conflict(result.Message);
-
-            return BadRequest(result.Message);
-        }
+        if (!result.Success) return ToActionResult(result);
 
         return CreatedAtAction(nameof(GetById), new { id = result.Person!.Id }, result.Person);
     }
@@ -62,17 +54,7 @@ public class PeopleController : Controller
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
         var result = await _personService.UpdatePersonAsync(id, dto);
-
-        if (!result.Success)
-        {
-            if (result.Message.Contains("não encontrada"))
-                return NotFound(result.Message);
-
-            if (result.Message.Contains("já está cadastrado"))
-                return Conflict(result.Message);
-
-            return BadRequest(result.Message);
-        }
+        if (!result.Success) return ToActionResult(result);
 
         return NoContent();
     }
@@ -81,9 +63,17 @@ public class PeopleController : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var success = await _personService.DeletePersonAsync(id);
-
         if (!success) return NotFound();
 
         return NoContent();
     }
+
+    private IActionResult ToActionResult(PersonOperationResult result) =>
+        result.Status switch
+        {
+            PersonOperationStatus.Conflict => Conflict(result.Message),
+            PersonOperationStatus.NotFound => NotFound(result.Message),
+            PersonOperationStatus.ValidationError => BadRequest(result.Message),
+            _ => BadRequest(result.Message)
+        };
 }

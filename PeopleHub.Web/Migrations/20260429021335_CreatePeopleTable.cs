@@ -20,7 +20,7 @@ namespace PeopleHub.Web.Migrations
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Cpf = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     BirthDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(254)", maxLength: 254, nullable: false),
                     Archived = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -32,6 +32,12 @@ namespace PeopleHub.Web.Migrations
                 name: "IX_People_Cpf",
                 table: "People",
                 column: "Cpf",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_People_Email",
+                table: "People",
+                column: "Email",
                 unique: true);
         }
 
