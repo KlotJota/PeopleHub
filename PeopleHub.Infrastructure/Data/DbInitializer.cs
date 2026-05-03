@@ -1,13 +1,11 @@
-using PeopleHub.Web.Models;
+using PeopleHub.Domain.People;
 
-namespace PeopleHub.Web.Data;
+namespace PeopleHub.Infrastructure.Data;
 
 public static class DbInitializer
 {
     public static void Seed(AppDbContext context)
     {
-        context.Database.EnsureCreated();
-
         if (context.People.Any()) return;
 
         var people = new Person[]

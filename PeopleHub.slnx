@@ -1,4 +1,7 @@
 <Solution>
+  <Project Path="PeopleHub.Application/PeopleHub.Application.csproj" />
+  <Project Path="PeopleHub.Domain/PeopleHub.Domain.csproj" />
+  <Project Path="PeopleHub.Infrastructure/PeopleHub.Infrastructure.csproj" />
   <Project Path="PeopleHub.Tests/PeopleHub.Tests.csproj" />
   <Project Path="PeopleHub.Web/PeopleHub.Web.csproj" />
 </Solution>

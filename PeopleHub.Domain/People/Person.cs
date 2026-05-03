@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace PeopleHub.Web.Models;
+namespace PeopleHub.Domain.People;
 
 public class Person
 {
@@ -9,19 +9,20 @@ public class Person
 
     [Required(ErrorMessage = "Name is required")]
     [StringLength(100, MinimumLength = 3)]
-    /// <example>Jonathan Garcia</example>
     public string Name { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "CPF is required")]
     [RegularExpression(@"^\d{11}$", ErrorMessage = "CPF must contain 11 digits")]
     public string Cpf { get; set; } = string.Empty;
 
-    [Required]
+    [Required(ErrorMessage = "BirthDate is required")]
     [DataType(DataType.Date)]
     public DateTime BirthDate { get; set; }
 
+    [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "Invalid e-mail")]
-    public string? Email { get; set; }
+    [StringLength(254)]
+    public string Email { get; set; } = string.Empty;
 
     public bool Archived { get; set; } = false;
 }
